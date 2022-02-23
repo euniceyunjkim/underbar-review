@@ -84,7 +84,7 @@
   };
 
   // Return all elements of an array that
-//  pass a truth test.
+  //  pass a truth test.
   _.filter = function(collection, test) {
   };
 
