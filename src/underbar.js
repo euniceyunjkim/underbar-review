@@ -198,16 +198,35 @@
     }, false);
   };
 
-
   // Determine whether all of the elements match a truth test.
   _.every = function(collection, iterator) {
     // TIP: Try re-using reduce() here.
+    iterator = iterator || _.identity;
+
+    if (collection.length === 0) {
+      return true;
+    }
+    return _.reduce(collection, function(memo, item) {
+      if (memo === false) {
+        return false;
+      }
+      return !!iterator(item);
+    }, true);
   };
 
   // Determine whether any of the elements pass a truth test. If no iterator is
   // provided, provide a default one
   _.some = function(collection, iterator) {
     // TIP: There's a very clever way to re-use every() here.
+    if (iterator) {
+      return !_.every(collection, function(item) {
+        return !iterator(item);
+      });
+    } else {
+      return !_.every(collection, function(item) {
+        return !item;
+      });
+    }
   };
 
 
@@ -230,11 +249,25 @@
   //     bla: "even more stuff"
   //   }); // obj1 now contains key1, key2, key3 and bla
   _.extend = function(obj) {
+    _.each(arguments, function(element) {
+      _.each(element, function(value, key) {
+        obj[key] = value;
+      });
+    });
+    return obj;
   };
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function(obj) {
+    _.each(arguments, function(element) {
+      _.each(element, function(value, key) {
+        if (obj[key] === undefined) {
+          obj[key] = value;
+        }
+      });
+    });
+    return obj;
   };
 
 
@@ -278,6 +311,20 @@
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func) {
+    var cache = {};
+
+    // if function name concat result is in cache
+    // return whatever is stored in memory
+    return function() {
+      var key = JSON.stringify(arguments);
+      // console.log('key', key, 'cache[key]:', cache[key]);
+      if (!cache[key]) {
+        console.log(func.apply(this, arguments));
+        cache[key] = func.apply(this, arguments);
+      }
+      return cache[key];
+
+    };
   };
 
   // Delays a function for the given number of milliseconds, and then calls
